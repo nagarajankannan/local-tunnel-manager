@@ -7,7 +7,7 @@ If you are new to local tunnel, check out what [local tunnel](https://localtunne
 
 ## installation
 ```shell
-npm install local-tunnel-manager
+npm install -g local-tunnel-manager
 ```
 ## usage
 you can use the same options as you provide to local tunnel

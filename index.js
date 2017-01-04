@@ -10,13 +10,15 @@ module.exports.start = function(params) {
 
     pm2.start({
       name: 'local-tunnel-manager',
-      script: './local-tunnel.js',
+      script: __dirname + '/local-tunnel.js',
       exec_mode: 'cluster',
       instances: 1,
       max_memory_restart: '100M',
       args: _.flatten(_.toPairs(params))
     }, function(err, apps) {
-      pm2.disconnect(); // Disconnect from PM2
+      console.log("starting..");
+      console.log("use command `pm2 ls` for status and `pm2 log` for logs");
+      pm2.disconnect();
       if (err) throw err;
     });
   });

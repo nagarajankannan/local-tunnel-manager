@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-console.log("it works!");
 var manager = require('../');
 
 var argv = require('yargs')
