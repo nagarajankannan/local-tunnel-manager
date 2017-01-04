@@ -1,6 +1,6 @@
 {
   "name": "local-tunnel-manager",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "utility to run local tunnel inside pm2",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,9 @@
     "name": "nagarajan k",
     "url": "https://github.com/nagarajankannan"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/nagarajankannan/local-tunnel-manager"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nagarajankannan/local-tunnel-manager"
   },
   "license": "ISC",
   "dependencies": {
