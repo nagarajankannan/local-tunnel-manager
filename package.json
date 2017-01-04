@@ -1,6 +1,6 @@
 {
   "name": "local-tunnel-manager",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "utility to run local tunnel inside pm2",
   "main": "index.js",
   "scripts": {
