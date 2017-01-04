@@ -1,0 +1,20 @@
+{
+  "name": "local-tunnel-manager",
+  "version": "1.0.0",
+  "description": "utility to run local tunnel inside pm2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "lt-manager": "bin/cmd.js"
+  },
+  "author": "nagarajan k",
+  "license": "ISC",
+  "dependencies": {
+    "localtunnel": "^1.8.2",
+    "lodash": "^4.17.4",
+    "pm2": "^2.2.3",
+    "yargs": "^6.6.0"
+  }
+}
