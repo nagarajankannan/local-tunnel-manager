@@ -10,7 +10,7 @@ module.exports.start = function(params) {
 
     pm2.start({
       name: 'local-tunnel-manager',
-      script: 'local-tunnel.js',
+      script: './local-tunnel.js',
       exec_mode: 'cluster',
       instances: 1,
       max_memory_restart: '100M',
