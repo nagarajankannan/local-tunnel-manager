@@ -1,5 +1,5 @@
 var localtunnel = require('localtunnel'),
-    _ = require('lodash');
+  _ = require('lodash');
 
 function startTunneling(data) {
   var params = _getParamsAsObject(data);
@@ -8,8 +8,16 @@ function startTunneling(data) {
   }, function(err, tunnel) {
     if (err) {
       console.log("Error while creating localtunnel", err);
+      process.send({
+        type: 'process:msg',
+        error: err.message
+      });
     } else {
       console.log("success", tunnel.url);
+      process.send({
+        type: 'process:msg',
+        data: tunnel
+      });
     }
   });
 
@@ -22,13 +30,13 @@ function startTunneling(data) {
   });
 }
 
-function _getParamsAsObject(data){
+function _getParamsAsObject(data) {
   var parameters = [];
-  while(data.length) parameters.push(data.splice(0,2));
+  while (data.length) parameters.push(data.splice(0, 2));
   return _.fromPairs(parameters);
 }
 
-if(!module.parent) {
+if (!module.parent) {
   startTunneling(process.argv.splice(2));
 }
 
