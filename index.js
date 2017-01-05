@@ -24,9 +24,9 @@ var start = function(params) {
       messagebus.on('process:msg', function(result) {
         if(result.error || !result.data){
           console.log(_.get(result, 'raw.error', 'Error while creating local tunnel.'));
-          _deleteApp(function(){
+          _deleteApp(params, function(){
             pm2.disconnect();
-          })
+          });
         } else {
           console.log("success =>", result.data.url);
           pm2ls();
