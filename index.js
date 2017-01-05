@@ -22,9 +22,9 @@ var start = function(params) {
       console.log(err);
     } else {
       messagebus.on('process:msg', function(result) {
-        if(result.error || !result.data){
+        if (result.error || !result.data) {
           console.log(_.get(result, 'raw.error', 'Error while creating local tunnel.'));
-          _deleteApp(params, function(){
+          _deleteApp(params, function() {
             pm2.disconnect();
           });
         } else {
@@ -35,7 +35,7 @@ var start = function(params) {
       });
     }
   });
-}
+};
 
 var _connectPm2 = function(params, callback) {
   pm2.connect(function(err) {
@@ -49,7 +49,7 @@ var _connectPm2 = function(params, callback) {
 };
 
 var _deleteApp = function(params, callback) {
-  pm2.delete('local-tunnel-manager', function(){
+  pm2.delete('local-tunnel-manager', function() {
     callback(null, params);
   });
 };
@@ -86,11 +86,11 @@ var _sendMessage = function(params, pm2Process, callback) {
   pm2.launchBus(function(err, bus) {
     callback(null, params, pm2Process, bus);
   });
-}
+};
 
 var pm2ls = function() {
-  var localPm2 = __dirname + '/node_modules/.bin/';
-  var child = childProcess.spawnSync('pm2', ['ls'], {cwd: localPm2});
+  var localPm2 = __dirname + '/node_modules/.bin/pm2';
+  var child = childProcess.spawnSync(localPm2, ['ls']);
   if (child.status === 0) { //checking with process exit code
     console.log(new Buffer(child.stdout).toString());
   } else {
