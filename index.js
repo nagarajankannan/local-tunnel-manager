@@ -13,6 +13,7 @@ var start = function(params) {
 
   async.waterfall([
     async.apply(_connectPm2, params),
+    _deleteApp,
     _startApp,
     _getProcess,
     _sendMessage,
@@ -23,9 +24,9 @@ var start = function(params) {
       messagebus.on('process:msg', function(result) {
         if(result.error || !result.data){
           console.log(_.get(result, 'raw.error', 'Error while creating local tunnel.'));
-          pm2.delete('local-tunnel-manager', function(){
+          _deleteApp(function(){
             pm2.disconnect();
-          });
+          })
         } else {
           console.log("success =>", result.data.url);
           pm2ls();
@@ -44,6 +45,12 @@ var _connectPm2 = function(params, callback) {
     } else {
       callback(null, params);
     }
+  });
+};
+
+var _deleteApp = function(params, callback) {
+  pm2.delete('local-tunnel-manager', function(){
+    callback(null, params);
   });
 };
 
@@ -82,7 +89,8 @@ var _sendMessage = function(params, pm2Process, callback) {
 }
 
 var pm2ls = function() {
-  var child = childProcess.spawnSync('pm2', ['ls']);
+  var localPm2 = __dirname + '/node_modules/.bin/';
+  var child = childProcess.spawnSync('pm2', ['ls'], {cwd: localPm2});
   if (child.status === 0) { //checking with process exit code
     console.log(new Buffer(child.stdout).toString());
   } else {
