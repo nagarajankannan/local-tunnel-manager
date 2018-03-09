@@ -10,31 +10,19 @@ var getStatus = function() {
 };
 
 var start = function(params) {
+  if (params.keep && !params.subdomain) {
+    require('yargs').showHelp();
+    console.log('Missing subdomain param when using keep');
+    return false;
+  }
 
   async.waterfall([
     async.apply(_connectPm2, params),
-    _deleteApp,
+    params.keep ? noop : _deleteApp,
     _startApp,
     _getProcess,
     _sendMessage,
-  ], function(err, params, pm2Process, messagebus) {
-    if (err) {
-      console.log(err);
-    } else {
-      messagebus.on('process:msg', function(result) {
-        if (result.error || !result.data) {
-          console.log(_.get(result, 'raw.error', 'Error while creating local tunnel.'));
-          _deleteApp(params, function() {
-            pm2.disconnect();
-          });
-        } else {
-          console.log("success =>", result.data.url);
-          pm2ls();
-          pm2.disconnect();
-        }
-      });
-    }
-  });
+  ], handleCallback);
 };
 
 var _connectPm2 = function(params, callback) {
@@ -48,15 +36,23 @@ var _connectPm2 = function(params, callback) {
   });
 };
 
+var noop = function(params, callback) { callback(null, params) }
+
 var _deleteApp = function(params, callback) {
-  pm2.delete('local-tunnel-manager', function() {
+  var name = 'local-tunnel-manager';
+  if (params.keep) name = params.subdomain
+
+  pm2.delete(name, function() {
     callback(null, params);
   });
 };
 
 var _startApp = function(params, callback) {
+  var name = 'local-tunnel-manager';
+  if (params.keep) name = params.subdomain
+
   pm2.start({
-    name: 'local-tunnel-manager',
+    name: name,
     script: __dirname + '/local-tunnel.js',
     exec_mode: 'cluster',
     instances: 1,
@@ -74,9 +70,12 @@ var _startApp = function(params, callback) {
 
 var _getProcess = function(params, callback) {
   var pm2Process = null;
+  var name = 'local-tunnel-manager';
+  if (params.keep) name = params.subdomain
+
   pm2.list(function(err, result) {
     pm2Process = _.findLast(result, {
-      name: 'local-tunnel-manager'
+      name: name
     });
     callback(err, params, pm2Process);
   });
@@ -88,6 +87,25 @@ var _sendMessage = function(params, pm2Process, callback) {
   });
 };
 
+var handleCallback = function(err, params, pm2Process, messagebus) {
+  if (err) {
+    console.log(err);
+  } else {
+    messagebus.on('process:msg', function(result) {
+      if (result.error || !result.data) {
+        console.log(_.get(result, 'raw.error', 'Error while creating local tunnel.'));
+        _deleteApp(params, function() {
+          pm2.disconnect();
+        });
+      } else {
+        console.log("success =>", result.data.url);
+        pm2ls();
+        pm2.disconnect();
+      }
+    });
+  }
+}
+
 var pm2ls = function() {
   var localPm2 = __dirname + '/node_modules/.bin/pm2';
   var child = childProcess.spawnSync(localPm2, ['ls']);
@@ -98,8 +116,36 @@ var pm2ls = function() {
   }
 };
 
+var pm2delete = function(name) {
+  if (!name) return
+
+  pm2.connect(function(err) {
+    if (err) {
+      console.error(new Error(err));
+      process.exit(2);
+    }
+
+    pm2.delete(name, function(err) {
+      if (err) {
+        console.log(new Error(err))
+        pm2ls();
+        pm2.disconnect();
+        process.exit(0);
+      }
+      else {
+        console.log('App', name, 'has been deleted from the pm2 process list')
+      }
+
+      pm2ls();
+      pm2.disconnect();
+      process.exit(0);
+    });
+  });
+}
+
 module.exports = {
   'start': start,
   'getStatus': getStatus,
-  'ls': pm2ls
+  'ls': pm2ls,
+  'delete': pm2delete,
 };
