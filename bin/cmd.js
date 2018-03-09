@@ -8,6 +8,15 @@ var argv = require('yargs')
     manager.ls();
     process.exit(0);
   })
+  .command('delete', 'deletes pm2 process', function(yargs) {
+    return yargs
+  }, function(argv) {
+    manager.delete(argv._[1]);
+  })
+  .option('k', {
+    alias: 'keep',
+    describe: 'Start pm2 with a process named as the subdomain. It will not get deleted on subsequent calls. Use --delete instead'
+  })
   .option('h', {
     alias: 'host',
     describe: 'Upstream server providing forwarding',
@@ -39,6 +48,7 @@ var argv = require('yargs')
   .argv;
 
 var params = {
+  keep: argv.keep,
   host: argv.host,
   port: argv.port,
   local_host: argv['local-host'],
